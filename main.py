@@ -1,7 +1,11 @@
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 import cv2 as cv
 import os, argparse, sys
-from lda import LDA
+from clasificador import Clasificador
+from sklearn.pipeline import Pipeline
 
 def recoger_args():
     parser = argparse.ArgumentParser()
@@ -38,26 +42,33 @@ def recorrerDirectorios(path):
                 y.append(int(dirc))
     return (imagenes,y)
 
-def clasificar_lda(test_path,train_path):
+def clasificar(test_path,train_path, clasificador):
     imagenes, y = recorrerDirectorios(train_path)
-    lda = LDA()
-    lda.fit(imagenes,y)
+    clasif = Clasificador(clasificador = clasificador)
+    clasif.fit(imagenes,y)
     imagenes2, nombre_imagenes = cogerImagenes(test_path)
-    resultados = lda.predict(imagenes2)
+    resultados = clasif.predict(imagenes2)
     # Cogemos los dos primeros digitos del nombre de la imagen (etiqueta) o uno                                                                                      # en caso de estar entre el cero y el 9                                                                             
     array_resultados = np.array([int(nombre[1:2]) if nombre[0] == '0' else int(nombre[:2]) for nombre in nombre_imagenes])
-    porcentaje = lda.comprobar_resultados(array_resultados)
+    porcentaje = clasif.comprobar_resultados(array_resultados)
     print(f'Porcentaje de aciertos: {porcentaje}')
 
 def main():
     args = recoger_args()
     if args.classifier:
-        if args.classifier == 'LDA-BAYES':
-            clasificar_lda(args.test_path,args.train_path)
-        if args.classifier == 'KNN-PCA':
-            clasificar_knn(args.test_path,args.train_path)
+        if args.classifier.lower() == 'lda':
+            clasificar(args.test_path,args.train_path,LinearDiscriminantAnalysis())
+        if args.classifier.lower() == 'knn':
+            clasificar(args.test_path,args.train_path,KNeighborsClassifier(n_neighbors=3))
+        if args.classifier.lower() == 'randomforest':
+            clasificar(args.test_path,args.train_path,RandomForestClassifier(n_estimators=\
+                                                                             500, n_jobs =-1))
+        if args.classifier.lower() == 'lda-knn':
+            clasificar(args.test_path,args.train_path,Pipeline([\
+                                                                ('lda',LinearDiscriminantAnalysis()),\
+                                                                ('knn',KNeighborsClassifier(n_neighbors=6))]))
     else:
-        clasificar_lda(args.test_path,args.train_path)
+        clasificar(args.test_path,args.train_path,LinearDiscriminantAnalysis())
 
 if __name__ == '__main__':
     main()

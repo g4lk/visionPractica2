@@ -1,17 +1,19 @@
+from sklearn.neighbors import KNeighborsClassifier
 from extCaracteristicas import extCaracteristicas
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 
-class LDA():
-    def __init__(self,imagenes = None,ets_train = None,resultado = None):
-        self.clf = LinearDiscriminantAnalysis()
+class Clasificador():
+    def __init__(self, resultado = None, clasificador = LinearDiscriminantAnalysis()):
+        self.clasificador = clasificador
         self.resultado = resultado 
 
     def fit(self,imagenes,ets_train):
-        self.clf.fit(extCaracteristicas(imagenes).caracteristicas,ets_train)
+        self.clasificador.fit(extCaracteristicas(imagenes).caracteristicas,ets_train)
 
     def predict(self,imagenes):
-        self.resultado = self.clf.predict(extCaracteristicas(imagenes).caracteristicas)
+        self.resultado = self.clasificador.predict(extCaracteristicas(imagenes).caracteristicas)
         return self.resultado
 
     def comprobar_resultados(self,array_resultados):
