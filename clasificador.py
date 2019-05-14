@@ -17,5 +17,10 @@ class Clasificador():
         return self.resultado
 
     def comprobar_resultados(self,array_resultados):
+        '''
+        Calcula porcentaje de aciertos
+        :param array_resultados: Array resultado de la operacion predict del algoritmo
+        :return: Porcentaje de aciertos del algoritmo
+        '''
         porcentaje = np.sum(np.equal(self.resultado,array_resultados))/len(self.resultado) * 100
         return round(porcentaje, 2)

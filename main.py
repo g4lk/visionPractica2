@@ -8,6 +8,10 @@ from clasificador import Clasificador
 from sklearn.pipeline import Pipeline
 
 def recoger_args():
+    '''
+    Recogemos argumentos y los devolvemos
+    :return:
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument('--train_path', help='Ruta a imagenes de entrenamiento')
     parser.add_argument('--test_path', help='Ruta a imagenes de test')
@@ -20,16 +24,26 @@ def recoger_args():
         sys.exit(-1)
 
 def cogerImagenes(path):
-        imagenes = []
-        nombre_imagenes = []
-        for imagen in sorted(os.listdir(path)):
-            img = cv.imread(f'{path}/{imagen}')
-            if img is not None:
-                imagenes.append(img)
-                nombre_imagenes.append(imagen)
-        return (imagenes,nombre_imagenes)
+    '''
+    Recorremos un directorio cogiendo todas las imagenes en el.
+    :param path: Directorio desde el que coger imagenes
+    :return: array de imagenes
+    '''
+    imagenes = []
+    nombre_imagenes = []
+    for imagen in sorted(os.listdir(path)):
+        img = cv.imread(f'{path}/{imagen}')
+        if img is not None:
+            imagenes.append(img)
+            nombre_imagenes.append(imagen)
+    return (imagenes,nombre_imagenes)
 
 def recorrerDirectorios(path):
+    '''
+    Coge el directorio principal y recorre recursivamente guardando las imágenes.
+    :param path: directorio que recorrer
+    :return:
+    '''
     imagenes = []
     y = []
     for dirc in sorted(os.listdir(path)):
@@ -43,17 +57,30 @@ def recorrerDirectorios(path):
     return (imagenes,y)
 
 def clasificar(test_path,train_path, clasificador):
+    '''
+    Recoge las imagenes del directorio train, entrena el algoritmo, y luego hace un predict con las imagenes del
+    directorio test. Por último te muestra los resultados.
+    :param test_path: directorio de las imagenes de test
+    :param train_path: directorio de las imagenes de train
+    :param clasificador: tipo de clasificador
+    :return: Devuelve por pantalla el porcentaje de aciertos del clasificador
+    '''
     imagenes, y = recorrerDirectorios(train_path)
     clasif = Clasificador(clasificador = clasificador)
     clasif.fit(imagenes,y)
     imagenes2, nombre_imagenes = cogerImagenes(test_path)
     resultados = clasif.predict(imagenes2)
-    # Cogemos los dos primeros digitos del nombre de la imagen (etiqueta) o uno                                                                                      # en caso de estar entre el cero y el 9                                                                             
+    # Cogemos los dos primeros digitos del nombre de la imagen (etiqueta) o uno
+    # en caso de estar entre el cero y el 9
     array_resultados = np.array([int(nombre[1:2]) if nombre[0] == '0' else int(nombre[:2]) for nombre in nombre_imagenes])
     porcentaje = clasif.comprobar_resultados(array_resultados)
     print(f'Porcentaje de aciertos: {porcentaje}')
 
 def main():
+    '''
+    Cogemos el algoritmo indicado, o por defecto lda para clasificar las imágenes.
+
+    '''
     args = recoger_args()
     if args.classifier:
         if args.classifier.lower() == 'lda':

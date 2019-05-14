@@ -7,6 +7,11 @@ class extCaracteristicas():
         self.caracteristicas = self.extraerCaracteristicas(imagenes)
 
     def extraerCaracteristicas(self,imagenes):
+        '''
+        Ecualizamos la imagen, sacamos los descriptores y preparamos el array redimensionado
+        :param imagenes: imagenes a tratar
+        :return: array resultado redimensionado
+        '''
         imagenes_escaladas = [self.tratar(img) for img in imagenes]
         hog = cv.HOGDescriptor(_winSize = (32,32),_blockSize = \
                                (16,16),_blockStride = (8,8), _cellSize = \
@@ -15,7 +20,11 @@ class extCaracteristicas():
         return np.array(descriptores)
 
     def tratar(self,img):
-
+        '''
+        Ecualizamos una imagen, pasamos a gris y reescalamos
+        :param img:  imagen a tratar
+        :return: imagen tratada
+        '''
         imagen_ecualizada = self.ecualizar(img)
         imagen_gris = cv.cvtColor(imagen_ecualizada,cv.COLOR_BGR2GRAY)
         # Alinear bloques con HOG
@@ -23,6 +32,11 @@ class extCaracteristicas():
         return imagen_escalada
 
     def ecualizar(self,img):
+        '''
+        Método para ecualizar la imagen en el canal l.
+        :param img: Imagen a ecualizar
+        :return: Imagen ecualizada
+        '''
         try:
         #-----Converting image to LAB Color model-----------------------------------
             lab= cv.cvtColor(img, cv.COLOR_BGR2LAB)
